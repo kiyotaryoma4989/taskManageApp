@@ -1,0 +1,13 @@
+<%= form_with(model: @todo, local: true) do |form| %>
+  <p>
+    <%= form.label :title %><br>
+    <%= form.text_field :title %>
+  </p>
+
+  <p>
+    <%= form.label :done %><br>
+    <%= form.check_box :done %>
+  </p>
+
+  <p><%= form.submit %></p>
+<% end %>
