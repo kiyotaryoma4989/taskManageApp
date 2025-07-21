@@ -1,4 +1,4 @@
-<div data-controller="modal">
+<div data-controller="modal todo">
     <div class="container">
         <header class="header">
             <div class="header-content">
@@ -48,25 +48,33 @@
             <main class="task-area">
                 <div class="task-header">
                     <input type="text" name="search" class="search-box" placeholder="🔍 タスクを検索...">
-                    <button class="add-task-btn"  data-action="click->modal#open">+ 新しいタスク</button>
+                    <button class="add-task-btn" data-action="click->modal#open">+ 新しいタスク</button>
                 </div>
 
                 <div class="task-list">
                     <% @todos.each do |todo| %>
-                        <div class="task-item <%= case todo.priority when 1 then "task-high" when 2 then "task-medium" else "task-low" end %> <%= todo.done ? 'completed' : '' %>">
+                        <div class="task-item <%= case todo.priority when 1 then "task-low" when 2 then "task-medium" else "task-high" end %> <%= todo.done ? 'completed' : '' %>">
                             <div class="task-content">
                                 <div class="task-header-item">
                                     <h3 class="task-title"><%= todo.title %></h3>
                                     <div class="task-actions">
-                                        <button class="task-btn complete-btn">✓</button>
-                                        <button class="task-btn edit-btn">✏️</button>
-                                        <button class="task-btn delete-btn">🗑️</button>
+                                        <button class="task-btn complete-btn" data-id="<%= todo.id %>" data-action="click->todo#updateDone">✓</button>
+                                        <button class="task-btn edit-btn" data-action="click->modal#open" 
+                                            data-id="<%= todo.id %>" 
+                                            data-title="<%= todo.title %>" 
+                                            data-description="<%= todo.description %>" 
+                                            data-priority="<%= todo.priority %>"
+                                            data-due_date="<%= todo.due_date %>"
+                                            data-category="<%= todo.category ? todo.category.id : "" %>"
+                                            data-tags="<%= todo.tags %>"
+                                            >✏️</button>
+                                        <button class="task-btn delete-btn" data-id="<%= todo.id %>" data-action="click->todo#deleteTask">🗑️</button>
                                     </div>
                                 </div>
                                 <p class="task-description"><%= todo.description %></p>
                                 <div class="task-meta">
-                                    <span class="task-due-date">📅 <%= todo.dueDate %></span>
-                                    <span class="task-category">💼 <%= todo.category %></span>
+                                    <span class="task-due-date">📅 <%= todo.due_date ? todo.due_date : "期限なし" %></span>
+                                    <span class="task-category"><%= todo.category ? todo.category.name : "未選択" %></span>
                                 </div>
                             </div>
                         </div>
@@ -77,12 +85,12 @@
     </div>
     <!-- タスク追加モーダル -->
     <div class="modal-overlay hidden" id="taskModal" data-modal-target="modal">
-        <div class="modal" data-controller="todo">
+        <div class="modal">
             <div class="modal-header">
                 <h2 class="modal-title">📝 新しいタスクを追加</h2>
                 <button class="modal-close" id="closeModal" data-action="click->modal#close">×</button>
             </div>
-            <form id="taskForm" data-action="submit->todo#submit">
+            <form id="taskForm" data-todo-target="form" data-modal-target="form" data-endpoint="/todos" data-method="POST" data-action="submit->todo#submit">
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="form-label" for="taskTitle">タイトル *</label>
@@ -103,14 +111,9 @@
                             <label class="form-label" for="taskCategory">カテゴリ</label>
                             <select id="taskCategory" name="category" class="form-select" data-todo-target="category">
                                 <option value="">カテゴリを選択</option>
-                                <option value="work">💼 仕事</option>
-                                <option value="design">🎨 デザイン</option>
-                                <option value="document">📝 文書作成</option>
-                                <option value="development">💻 開発</option>
-                                <option value="event">🎉 イベント</option>
-                                <option value="personal">👤 個人</option>
-                                <option value="meeting">🤝 会議</option>
-                                <option value="learning">📚 学習</option>
+                                <% @categories.each do |category| %>
+                                    <option value="<%= category.id %>"><%= category.name %></option>
+                                <% end %>
                             </select>
                         </div>
                     </div>
@@ -118,20 +121,20 @@
                     <div class="form-group">
                         <label class="form-label">優先度</label>
                         <div class="priority-options">
-                            <button type="button" class="priority-option high" data-action="click->todo#selectPriority" data-todo="high">
+                            <button type="button" class="priority-option high" data-priority="3" data-action="click->modal#selectPriority">
                                 🔥 高
                             </button>
-                            <button type="button" class="priority-option medium selected" data-action="click->todo#selectPriority" data-todo="medium">
+                            <button type="button" class="priority-option medium selected" data-priority="2" data-action="click->modal#selectPriority">
                                 ⚡ 中
                             </button>
-                            <button type="button" class="priority-option low" data-action="click->todo#selectPriority" data-todo="low">
+                            <button type="button" class="priority-option low" data-priority="1" data-action="click->modal#selectPriority">
                                 🌿 低
                             </button>
                         </div>
-                        <input type="hidden" id="taskPriority" name="priority" value="medium" data-todo-target="priority">
+                        <input type="hidden" id="taskPriority" name="priority" value="2" data-todo-target="priority" data-modal-target="priority">
                     </div>
 
-                    <div class="form-group">
+                    <div class="">
                         <label class="form-label" for="taskTags">タグ</label>
                         <input type="text" id="taskTags" name="tags" class="form-input" data-todo-target="tags" placeholder="タグをカンマ区切りで入力（例: 緊急, 重要, レビュー必要）">
                     </div>
@@ -139,7 +142,7 @@
 
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" id="cancelBtn" data-action="click->modal#close">キャンセル</button>
-                    <button type="submit" data-action="click->todo#submit" class="btn btn-primary">📝 タスクを追加</button>
+                    <button type="submit" data-type="update" data-action="click->todo#submit" id="btn-submit" class="btn btn-primary">📝 タスクを追加</button>
                 </div>
             </form>
         </div>

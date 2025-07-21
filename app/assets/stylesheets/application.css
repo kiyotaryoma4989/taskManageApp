@@ -419,7 +419,7 @@ body {
 }
 
 .completed {
-    opacity: 0.6;
+    opacity: 0.6!important;
     text-decoration: line-through;
 }
 
@@ -764,5 +764,17 @@ body {
 
     .btn {
         width: 100%;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(-100%);
     }
 }

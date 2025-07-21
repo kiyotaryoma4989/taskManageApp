@@ -2,7 +2,8 @@ class TodosController < ApplicationController
     protect_from_forgery with: :null_session
 
   def index
-    @todos = Todo.order(updated_at: :asc)
+    @todos = Todo.active.order(updated_at: :desc)
+    @categories = Category.all()
   end
 
   def new
@@ -13,7 +14,7 @@ class TodosController < ApplicationController
     # @todo = Todo.new(todo_params.merge(user_id: current_user_id))
     @todo = Todo.new(todo_params.merge(user_id: 1))
     if @todo.save
-      render json: { todo: @todo }, status: :created
+      render json: { todo: @todo.as_json(include: { category: { only: [:id, :name] } }) }, status: :created
     else
       render json: { error: @todo.errors.full_messages }, status: :unprocessable_entity
     end
@@ -26,9 +27,27 @@ class TodosController < ApplicationController
   def update
     @todo = Todo.find(params[:id])
     if @todo.update(todo_params)
-      redirect_to todos_path, notice: "更新しました"
+      render json: { todo: @todo.as_json(include: { category: { only: [:id, :name] } }) }, status: :ok
     else
-      render :edit
+      render json: { error: @todo.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def update_done
+    @todo = Todo.find(params[:id])
+    if @todo.update(done: params[:done])
+      render json: { success: true, todo: @todo }, status: :ok
+    else
+      render json: { success: false, errors: @todo.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def update_delete_flg
+    @todo = Todo.find(params[:id])
+    if @todo.update(delete_flg: params[:delete_flg])
+      render json: { success: true, todo: @todo }, status: :ok
+    else
+      render json: { success: false, errors: @todo.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -41,6 +60,6 @@ class TodosController < ApplicationController
   private
 
   def todo_params
-    params.require(:todo).permit(:title,:description,:dueDate,:category,:priority,:tags,:done)
+    params.require(:todo).permit(:title,:description,:due_date,:category_id,:priority,:tags,:done)
   end
 end

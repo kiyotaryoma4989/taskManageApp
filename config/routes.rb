@@ -8,6 +8,9 @@ Rails.application.routes.draw do
   # Defines the root path route ("/")
   # root "posts#index"
   root 'todos#index'
+  patch 'todos/:id/done', to: 'todos#update_done'
+  patch 'todos/:id/delete', to: 'todos#update_delete_flg'
   resources :todos
   resources :users
+  resources :categories
 end

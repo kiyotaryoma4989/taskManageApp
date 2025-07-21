@@ -4,12 +4,12 @@ class CreateTodos < ActiveRecord::Migration[7.1]
       t.references :user, null: false, foreign_key: true
       t.string :title
       t.string :description
-      t.integer :category
-      t.date :dueDate
+      t.references  :category, foreign_key: true
+      t.date :due_date
       t.integer :priority
       t.boolean :done
       t.string :tags
-      t.boolean :deleteFlg, default: false
+      t.boolean :delete_flg, default: false
       t.timestamps
     end
   end
