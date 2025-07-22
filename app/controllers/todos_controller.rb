@@ -1,9 +1,18 @@
 class TodosController < ApplicationController
+    before_action :authenticate_user!
     protect_from_forgery with: :null_session
 
   def index
-    @todos = Todo.active.order(updated_at: :desc)
+    @todos = Todo.active.where(user_id: current_user.id).order(updated_at: :desc)
+    @notCompletedCount = Todo.active.where(user_id: current_user.id, done: false).count
+    @completedCount = Todo.active.where(user_id: current_user.id, done: true).count
     @categories = Category.all()
+    total = @completedCount + @notCompletedCount
+    if total.zero?
+      @progress = 0
+    else
+      @progress = ((@completedCount.to_f / total) * 100).round(0)
+    end
   end
 
   def new
@@ -11,8 +20,7 @@ class TodosController < ApplicationController
   end
 
   def create
-    # @todo = Todo.new(todo_params.merge(user_id: current_user_id))
-    @todo = Todo.new(todo_params.merge(user_id: 1))
+    @todo = Todo.new(todo_params.merge(user_id: current_user.id))
     if @todo.save
       render json: { todo: @todo.as_json(include: { category: { only: [:id, :name] } }) }, status: :created
     else

@@ -3,6 +3,56 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
     static targets = ["form", "title", "description", "dueDate", "category", "priority", "tags"]
 
+    initialize() {
+        this.notCompleteTaskElem = document.querySelector(".stat-notComp");
+        this.completeTaskElem = document.querySelector(".stat-comp");
+        this.progressElem = document.querySelector(".stat-progress");
+        this.notCompleteTaskCount = Number(this.notCompleteTaskElem.textContent);
+        this.completeTaskCount = Number(this.completeTaskElem.textContent);
+        this.progress = Number(this.progressElem.textContent);
+    }
+
+    calcProgress() {
+        const total = this.notCompleteTaskCount + this.completeTaskCount;
+        this.progress = total === 0 ? 0 : Math.round((this.completeTaskCount / total) * 100);
+    }
+
+    addTask() {
+        this.notCompleteTaskCount++;
+        this.calcProgress();
+        this.renderStats();
+    }
+
+    complete() {
+        this.notCompleteTaskCount--;
+        this.completeTaskCount++;
+        this.calcProgress();
+        this.renderStats();
+    }
+
+    refrectStatsDeleteTask(isCompleted) {
+        if (isCompleted) {
+            this.completeTaskCount--;
+        } else {
+            this.notCompleteTaskCount--;
+        }
+        this.calcProgress();
+        this.renderStats();
+    }
+
+    cancelComplete() {
+        this.completeTaskCount--;
+        this.notCompleteTaskCount++;
+        this.calcProgress();
+        this.renderStats();
+    }
+
+    renderStats() {
+        this.notCompleteTaskElem.textContent = this.notCompleteTaskCount;
+        this.completeTaskElem.textContent = this.completeTaskCount;
+        this.progressElem.textContent = this.progress + "%";
+    }
+
     async submit(event) {
         event.preventDefault()
 
@@ -21,7 +71,6 @@ export default class extends Controller {
         try {
 
             const formData = this.formTarget.dataset
-            console.log(formData.endpoint);
             const response = await fetch(formData.endpoint, {
                 method: formData.method,
                 headers: {
@@ -54,10 +103,17 @@ export default class extends Controller {
             this.resetForm;
 
             // 画面の表示を更新
+            const btnData = event.target.dataset
+            if (btnData.type == "update") {
+                document.querySelector(`#task-item-${btnData.target_item}`).remove();
+            }
             const taskList = document.querySelector('.task-list');
             const newTask = document.createElement('div');
             newTask.innerHTML = this.createTodoHTML(result.todo);
             const taskElement = newTask.firstElementChild;
+
+            // ステータスを更新
+            this.addTask()
 
             // アニメーションで追加
             taskElement.style.opacity = '0';
@@ -90,7 +146,7 @@ export default class extends Controller {
 
     createTodoHTML(todo) {
         return `
-            <div class="task-item ${todo.priority == "1" ? "task-low" : todo.priority == "2" ? "task-medium" : "task-high" } ${todo.done ? 'completed' : ''}">
+            <div id="task-item-${todo.id}" class="task-item ${todo.priority == "1" ? "task-low" : todo.priority == "2" ? "task-medium" : "task-high"} ${todo.done ? 'completed' : ''}">
                 <div class="task-content">
                     <div class="task-header-item">
                         <h3 class="task-title">${todo.title}</h3>
@@ -124,6 +180,7 @@ export default class extends Controller {
     }
 
     async updateDone(event) {
+        console.log(event.target);
         const id = event.target.dataset.id
         const completed = event.target.closest(".task-item").classList.contains("completed")
 
@@ -138,6 +195,13 @@ export default class extends Controller {
             })
 
             if (response.ok) {
+                // ステータスを更新
+                if (completed) {
+                    this.cancelComplete()
+                } else {
+                    this.complete()
+                }
+
                 const taskItem = event.target.closest('.task-item');
                 taskItem.classList.toggle('completed');
                 event.target.style.transform = 'scale(1.3)';
@@ -151,6 +215,7 @@ export default class extends Controller {
     }
 
     async deleteTask(event) {
+        console.log(event.target);
         const id = event.target.dataset.id
         const btn = event.target
 
@@ -166,10 +231,12 @@ export default class extends Controller {
                 })
 
                 if (response.ok) {
-                    btn.closest(".task-item").classList.remove("completed");
-                    btn.closest('.task-item').style.animation = 'fadeOut 0.5s ease forwards';
+                    const taskItem = btn.closest(".task-item")
+                    this.refrectStatsDeleteTask(taskItem.classList.contains("completed")) // ステータスを更新
+                    taskItem.classList.remove("completed");
+                    taskItem.style.animation = 'fadeOut 0.5s ease forwards';
                     setTimeout(() => {
-                        btn.closest('.task-item').remove();
+                        taskItem.remove();
                     }, 500);
                 }
             }

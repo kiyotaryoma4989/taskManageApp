@@ -21,6 +21,8 @@ export default class extends Controller {
             buttons.forEach((btn) => btn.classList.remove("selected"))
             modal.querySelector(`.priority-option[data-priority="${todo.priority}"]`).classList.add("selected")
             modal.querySelector("#taskTags").value = todo.tags
+            modal.querySelector("#btn-submit").dataset.target_item = todo.id
+            modal.querySelector("#btn-submit").dataset.type = "update"
             modal.querySelector("#btn-submit").value = "📝 タスクを編集"
         } else {
             // 新規作成モード
@@ -35,6 +37,8 @@ export default class extends Controller {
             buttons.forEach((btn) => btn.classList.remove("selected"))
             modal.querySelector(".priority-option.medium").classList.add("selected")
             modal.querySelector("#taskTags").value = ""
+            modal.querySelector("#btn-submit").dataset.target_item = ""
+            modal.querySelector("#btn-submit").dataset.type = "create"
             modal.querySelector("#btn-submit").value = "📝 タスクを追加"
         }
         this.modalTarget.classList.remove("hidden")
@@ -52,6 +56,7 @@ export default class extends Controller {
             btn.classList.remove('selected');
         });
         document.querySelector('.priority-option.medium').classList.add('selected');
+        document.querySelector('#taskPriority').value = "2" // 優先度「中」
     }
 
     selectPriority(event) {

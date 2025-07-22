@@ -2,23 +2,23 @@ require 'bcrypt'
 
 User.create!([
   {
-    userId: "user1",
+    user_id: "user1",
     password_digest: BCrypt::Password.create("password1")
   },
   {
-    userId: "user2",
+    user_id: "user2",
     password_digest: BCrypt::Password.create("password2")
   },
   {
-    userId: "user3",
+    user_id: "user3",
     password_digest: BCrypt::Password.create("password3")
   },
   {
-    userId: "user4",
+    user_id: "user4",
     password_digest: BCrypt::Password.create("password4")
   },
   {
-    userId: "user5",
+    user_id: "user5",
     password_digest: BCrypt::Password.create("password5")
   }
 ])

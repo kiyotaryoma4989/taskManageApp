@@ -2,21 +2,29 @@
     <div class="container">
         <header class="header">
             <div class="header-content">
-                <h1>TaskFlow</h1>
-                <p>効率的なタスク管理で生産性を向上</p>
-                <div class="stats">
-                    <div class="stat-item">
-                        <span class="stat-number">12</span>
-                        <span class="stat-label">未完了タスク</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">8</span>
-                        <span class="stat-label">完了タスク</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-number">65%</span>
-                        <span class="stat-label">進捗率</span>
-                    </div>
+                <div>
+                    <h1>TaskFlow</h1>
+                    <p>効率的なタスク管理で生産性を向上</p>
+                    <small>※当サイトは開発段階です。個人情報などの機密情報の入力はお控えください。</small>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span class="user-name" id="userName"><%= current_user.user_id %></span>
+                    <%= button_to "ログアウト", logout_path, method: :delete, class: "logout-btn" %>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number stat-notComp"><%= @notCompletedCount %></span>
+                    <span class="stat-label">未完了タスク</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number stat-comp"><%= @completedCount %></span>
+                    <span class="stat-label">完了タスク</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number stat-progress"><%= @progress %>%</span>
+                    <span class="stat-label">進捗率</span>
                 </div>
             </div>
         </header>
@@ -53,7 +61,7 @@
 
                 <div class="task-list">
                     <% @todos.each do |todo| %>
-                        <div class="task-item <%= case todo.priority when 1 then "task-low" when 2 then "task-medium" else "task-high" end %> <%= todo.done ? 'completed' : '' %>">
+                        <div id="task-item-<%= todo.id %>" class="task-item <%= case todo.priority when 1 then "task-low" when 2 then "task-medium" else "task-high" end %> <%= todo.done ? 'completed' : '' %>">
                             <div class="task-content">
                                 <div class="task-header-item">
                                     <h3 class="task-title"><%= todo.title %></h3>
@@ -142,7 +150,7 @@
 
                 <div class="modal-actions">
                     <button type="button" class="btn btn-secondary" id="cancelBtn" data-action="click->modal#close">キャンセル</button>
-                    <button type="submit" data-type="update" data-action="click->todo#submit" id="btn-submit" class="btn btn-primary">📝 タスクを追加</button>
+                    <button type="submit" data-type="update" data-target_item="" data-action="click->todo#submit" id="btn-submit" class="btn btn-primary">📝 タスクを追加</button>
                 </div>
             </form>
         </div>

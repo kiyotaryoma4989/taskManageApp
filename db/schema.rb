@@ -34,10 +34,12 @@ ActiveRecord::Schema[7.1].define(version: 2025_07_19_110159) do
   end
 
   create_table "users", charset: "utf8mb4", collation: "utf8mb4_0900_ai_ci", force: :cascade do |t|
-    t.string "userId", null: false
+    t.string "user_name"
+    t.string "user_id", null: false
     t.string "password_digest", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_users_on_user_id", unique: true
   end
 
   add_foreign_key "todos", "categories"
