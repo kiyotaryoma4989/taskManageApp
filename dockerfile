@@ -9,7 +9,7 @@ WORKDIR /rails
 
 # Set production environment
 ENV RAILS_ENV="production" \
-    BUNDLE_DEPLOYMENT="1" \
+    BUNDLE_DEPLOYMENT="0" \
     BUNDLE_PATH="/usr/local/bundle" \
     BUNDLE_WITHOUT="development"
 
@@ -23,8 +23,9 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential libpq-dev nodejs git libvips pkg-config libyaml-dev
 
 # Install application gems
-COPY Gemfile Gemfile.lock ./
-RUN bundle install && \
+# COPY Gemfile Gemfile.lock ./
+COPY Gemfile ./
+RUN bundle install --no-deployment && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
 
