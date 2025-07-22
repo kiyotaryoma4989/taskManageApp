@@ -2,23 +2,29 @@
 
 This README would normally document whatever steps are necessary to get the
 application up and running.
+# TaskFlow(タスク管理アプリ)
 
-Things you may want to cover:
+このアプリは Ruby on Rails と MySQL(今のところ) を用いたタスク管理システムです。  
+シンプルなUIでタスクを作成・編集・削除できます。
 
-* Ruby version
+---
 
-* System dependencies
+## ✅ 動作環境
 
-* Configuration
+- Ruby: 3.2.8
+- Rails: 7.1.5
+- MySQL: 8.0
+- Node.js: 22.17.0
+- Yarn または npm
 
-* Database creation
+---
 
-* Database initialization
+## 📦 セットアップ手順
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+```bash
+git clone https://github.com/kiyotaryoma4989/taskManageApp.git
+cd taskManageApp
+bundle install
+yarn install
+cp .env.example .env   # .env を準備
+rails db:setup
