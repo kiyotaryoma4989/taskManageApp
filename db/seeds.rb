@@ -27,3 +27,7 @@ Category.create!([
   }
 ])
 
+categories.each do |name|
+  Category.find_or_create_by!(name: name)
+end
+
