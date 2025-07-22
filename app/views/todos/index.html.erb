@@ -1,0 +1,158 @@
+<div data-controller="modal todo">
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <div>
+                    <h1>TaskFlow</h1>
+                    <p>効率的なタスク管理で生産性を向上</p>
+                    <small>※当サイトは開発段階です。個人情報などの機密情報の入力はお控えください。</small>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span class="user-name" id="userName"><%= current_user.user_id %></span>
+                    <%= button_to "ログアウト", logout_path, method: :delete, class: "logout-btn" %>
+                </div>
+            </div>
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number stat-notComp"><%= @notCompletedCount %></span>
+                    <span class="stat-label">未完了タスク</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number stat-comp"><%= @completedCount %></span>
+                    <span class="stat-label">完了タスク</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number stat-progress"><%= @progress %>%</span>
+                    <span class="stat-label">進捗率</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <aside class="sidebar">
+                <h3>📋 フィルター</h3>
+                <div class="filter-buttons">
+                    <button class="filter-btn active">📝 すべてのタスク</button>
+                    <button class="filter-btn">⏰ 今日が期限</button>
+                    <button class="filter-btn">📅 今週が期限</button>
+                    <button class="filter-btn">✅ 完了済み</button>
+                    <button class="filter-btn">⏳ 未完了</button>
+                </div>
+
+                <h3>🎯 優先度</h3>
+                <div class="priority-filters">
+                    <button class="priority-btn priority-high">🔥 高優先度</button>
+                    <button class="priority-btn priority-medium">⚡ 中優先度</button>
+                    <button class="priority-btn priority-low">🌿 低優先度</button>
+                </div>
+
+                <div class="progress-bar">
+                    <div class="progress-fill"></div>
+                </div>
+                <p style="text-align: center; color: #6b7280; font-size: 0.9rem;">全体進捗: 65%</p>
+            </aside>
+
+            <main class="task-area">
+                <div class="task-header">
+                    <input type="text" name="search" class="search-box" placeholder="🔍 タスクを検索...">
+                    <button class="add-task-btn" data-action="click->modal#open">+ 新しいタスク</button>
+                </div>
+
+                <div class="task-list">
+                    <% @todos.each do |todo| %>
+                        <div id="task-item-<%= todo.id %>" class="task-item <%= case todo.priority when 1 then "task-low" when 2 then "task-medium" else "task-high" end %> <%= todo.done ? 'completed' : '' %>">
+                            <div class="task-content">
+                                <div class="task-header-item">
+                                    <h3 class="task-title"><%= todo.title %></h3>
+                                    <div class="task-actions">
+                                        <button class="task-btn complete-btn" data-id="<%= todo.id %>" data-action="click->todo#updateDone">✓</button>
+                                        <button class="task-btn edit-btn" data-action="click->modal#open" 
+                                            data-id="<%= todo.id %>" 
+                                            data-title="<%= todo.title %>" 
+                                            data-description="<%= todo.description %>" 
+                                            data-priority="<%= todo.priority %>"
+                                            data-due_date="<%= todo.due_date %>"
+                                            data-category="<%= todo.category ? todo.category.id : "" %>"
+                                            data-tags="<%= todo.tags %>"
+                                            >✏️</button>
+                                        <button class="task-btn delete-btn" data-id="<%= todo.id %>" data-action="click->todo#deleteTask">🗑️</button>
+                                    </div>
+                                </div>
+                                <p class="task-description"><%= todo.description %></p>
+                                <div class="task-meta">
+                                    <span class="task-due-date">📅 <%= todo.due_date ? todo.due_date : "期限なし" %></span>
+                                    <span class="task-category"><%= todo.category ? todo.category.name : "未選択" %></span>
+                                </div>
+                            </div>
+                        </div>
+                    <% end %>
+                </div>
+            </main>
+        </div>
+    </div>
+    <!-- タスク追加モーダル -->
+    <div class="modal-overlay hidden" id="taskModal" data-modal-target="modal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">📝 新しいタスクを追加</h2>
+                <button class="modal-close" id="closeModal" data-action="click->modal#close">×</button>
+            </div>
+            <form id="taskForm" data-todo-target="form" data-modal-target="form" data-endpoint="/todos" data-method="POST" data-action="submit->todo#submit">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="taskTitle">タイトル *</label>
+                        <input type="text" id="taskTitle" name="title" class="form-input" placeholder="タスクのタイトルを入力してください" required data-todo-target="title">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="taskDescription">詳細説明</label>
+                        <textarea id="taskDescription" name="description" class="form-input form-textarea" placeholder="タスクの詳細を入力してください（任意）" data-todo-target="description"></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label" for="taskDueDate">期限日</label>
+                            <input type="date" id="taskDueDate" name="dueDate" class="form-input" data-todo-target="dueDate">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="taskCategory">カテゴリ</label>
+                            <select id="taskCategory" name="category" class="form-select" data-todo-target="category">
+                                <option value="">カテゴリを選択</option>
+                                <% @categories.each do |category| %>
+                                    <option value="<%= category.id %>"><%= category.name %></option>
+                                <% end %>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">優先度</label>
+                        <div class="priority-options">
+                            <button type="button" class="priority-option high" data-priority="3" data-action="click->modal#selectPriority">
+                                🔥 高
+                            </button>
+                            <button type="button" class="priority-option medium selected" data-priority="2" data-action="click->modal#selectPriority">
+                                ⚡ 中
+                            </button>
+                            <button type="button" class="priority-option low" data-priority="1" data-action="click->modal#selectPriority">
+                                🌿 低
+                            </button>
+                        </div>
+                        <input type="hidden" id="taskPriority" name="priority" value="2" data-todo-target="priority" data-modal-target="priority">
+                    </div>
+
+                    <div class="">
+                        <label class="form-label" for="taskTags">タグ</label>
+                        <input type="text" id="taskTags" name="tags" class="form-input" data-todo-target="tags" placeholder="タグをカンマ区切りで入力（例: 緊急, 重要, レビュー必要）">
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="cancelBtn" data-action="click->modal#close">キャンセル</button>
+                    <button type="submit" data-type="update" data-target_item="" data-action="click->todo#submit" id="btn-submit" class="btn btn-primary">📝 タスクを追加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

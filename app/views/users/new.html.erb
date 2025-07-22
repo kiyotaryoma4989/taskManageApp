@@ -1,0 +1,70 @@
+<!-- 認証画面 -->
+<div class="auth-container" id="authContainer" data-controller="user">
+    <!-- ログイン画面 -->
+    <div class="auth-card" id="loginCard">
+        <div class="auth-header">
+            <h2 class="auth-title">🔐 ログイン</h2>
+            <p class="auth-subtitle">TaskFlowへようこそ</p>
+        </div>
+        <div class="auth-body">
+            <form id="loginForm" action="login/" method="POST">
+                <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+                <div class="auth-form-group">
+                    <label class="auth-label" for="loginId">ID</label>
+                    <input type="text" id="loginId" name="user_id" class="auth-input" placeholder="IDを入力" required>
+                    <div class="auth-error" id="loginEmailError">有効なIDを入力してください</div>
+                </div>
+                <div class="auth-form-group">
+                    <label class="auth-label" for="loginPassword">パスワード</label>
+                    <input type="password" id="loginPassword" name="password" class="auth-input" autocomplete="current-password" placeholder="パスワードを入力" required>
+                    <div class="auth-error" id="loginPasswordError">パスワードは6文字以上で入力してください</div>
+                </div>
+                <button type="submit" class="auth-btn auth-btn-primary" id="loginSubmit">
+                    🚀 ログイン
+                </button>
+            </form>
+            <div class="auth-switch">
+                アカウントをお持ちでない方は <a href="#" class="auth-switch-link" id="showRegister" data-action="click->user#switchToRegister">新規登録</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 新規登録画面 -->
+    <div class="auth-card hidden" id="registerCard">
+        <div class="auth-header">
+            <h2 class="auth-title">📝 新規登録</h2>
+            <p class="auth-subtitle">新しいアカウントを作成</p>
+        </div>
+        <div class="auth-body">
+            <form id="registerForm" action="users/" method="POST">
+                <input type="hidden" name="authenticity_token" value="<%= form_authenticity_token %>">
+                <div class="auth-form-group">
+                    <label class="auth-label" for="registerName">お名前</label>
+                    <input type="text" id="registerName" name="user[name]" class="auth-input" placeholder="お名前を入力" required>
+                    <div class="auth-error" id="registerNameError">名前は2文字以上で入力してください</div>
+                </div>
+                <div class="auth-form-group">
+                    <label class="auth-label" for="registerId">ID*</label>
+                    <input type="text" id="registerId" name="user[user_id]" class="auth-input" placeholder="IDを入力" required>
+                    <div class="auth-error" id="registerEmailError">有効なIDを入力してください</div>
+                </div>
+                <div class="auth-form-group">
+                    <label class="auth-label" for="registerPassword">パスワード*</label>
+                    <input type="password" id="registerPassword" name="user[password]" class="auth-input" autocomplete="current-password" placeholder="パスワードを入力（6文字以上）" required>
+                    <div class="auth-error" id="registerPasswordError">パスワードは6文字以上で入力してください</div>
+                </div>
+                <div class="auth-form-group">
+                    <label class="auth-label" for="registerPasswordConfirm">パスワード確認*</label>
+                    <input type="password" id="registerPasswordConfirm" name="user[passwordConfirm]" class="auth-input" autocomplete="current-password" placeholder="パスワードを再入力" required>
+                    <div class="auth-error" id="registerPasswordConfirmError">パスワードが一致しません</div>
+                </div>
+                <button type="submit" class="auth-btn auth-btn-primary" id="registerSubmit" data-action="click->user#create">
+                    ✨ アカウント作成
+                </button>
+            </form>
+            <div class="auth-switch">
+                既にアカウントをお持ちの方は <a href="#" class="auth-switch-link" id="showLogin" data-action="click->user#switchToLogin">ログイン</a>
+            </div>
+        </div>
+    </div>
+</div>
