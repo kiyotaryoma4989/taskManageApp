@@ -7,6 +7,7 @@ class SessionsController < ApplicationController
 
     if user && user.authenticate(params[:password])
       session[:id] = user.id
+      session[:user_name] = user.user_name
       session[:user_id] = user.user_id
       redirect_to "/todos", notice: "ログイン成功"
     else

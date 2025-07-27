@@ -2,14 +2,14 @@
     <div class="container">
         <header class="header">
             <div class="header-content">
-                <div>
+                <div class="header-title">
                     <h1>TaskFlow</h1>
                     <p>効率的なタスク管理で生産性を向上</p>
                     <small>※当サイトは開発段階です。個人情報などの機密情報の入力はお控えください。</small>
                 </div>
                 <div class="user-info">
                     <div class="user-avatar" id="userAvatar">U</div>
-                    <span class="user-name" id="userName"><%= current_user.user_id %></span>
+                    <span class="user-name" id="userName"><%= current_user.user_name ? current_user.user_name : current_user.user_id %></span>
                     <%= button_to "ログアウト", logout_path, method: :delete, class: "logout-btn" %>
                 </div>
             </div>

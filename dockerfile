@@ -23,8 +23,7 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y build-essential libpq-dev nodejs git libvips pkg-config libyaml-dev
 
 # Install application gems
-# COPY Gemfile Gemfile.lock ./
-COPY Gemfile ./
+COPY Gemfile Gemfile.lock ./
 RUN bundle install --no-deployment && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
@@ -44,7 +43,10 @@ FROM base
 
 # Install packages needed for deployment
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y curl default-mysql-client libvips && \
+    apt-get install --no-install-recommends -y \
+    curl \
+    libvips \
+    libpq5 && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
 # Copy built artifacts: gems, application

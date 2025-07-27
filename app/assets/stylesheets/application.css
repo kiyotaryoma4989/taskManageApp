@@ -732,6 +732,18 @@ body {
 }
 
 @media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+    }
+
+    .header-content .user-info {
+        margin: 1rem 0;
+    }
+
+    .stats {
+        flex-direction: column;
+    }
+
     .main-content {
         grid-template-columns: 1fr;
     }
